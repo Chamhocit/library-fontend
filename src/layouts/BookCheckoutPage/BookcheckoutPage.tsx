@@ -5,47 +5,31 @@ import BookModel from "../../models/BookModel";
 import { StarsReview } from "../Untils/StarsReview";
 import { CheckoutAndReviewBox } from "./CheckoutAndReviewBox";
 import ReviewModel from "../../models/ReviewModel";
-import { useGetReviewsQuery } from "../../services/reviewApi";
 import { LastestReview } from "./LastestReview";
 import axios from "axios";
-import { error } from "console";
-import { useAppSelector } from "../../app/hooks";
-import { selectAuth } from "../../features/authSlice";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { logout, selectAuth } from "../../features/authSlice";
 import { SpinerLoading } from "../Untils/SpinerLoading";
+import { useHistory } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export const BookCheckoutPage = () => {
-    const bookId = (window.location.pathname).split('/')[2];
-    const { name: userEmail, token: userToken } = useAppSelector(selectAuth);
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    const userToken = user.token;
+
+    const bookIdString = (window.location.pathname).split('/')[2];
+    const bookId = parseInt(bookIdString);
+
+
+
     const [currentLoansCount, setCurrentLoansCount] = useState(0);
     const [isLoadingCurrentLoansCount, setIsLoadingCurrentLoansCount] = useState(true);
-    useEffect(() => {
-        if (userToken) {
-            const url = "http://localhost:8080/api/books/secure/currentloans/count";
-            const requestOption = {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${userToken}`,
-                    'Content-Type': 'application/json'
-                }
-            };
-            axios(url, requestOption)
-            .then(response=>{
-                setCurrentLoansCount(response.data);
-                setIsLoadingCurrentLoansCount(false);
-            })
-            .catch(error=>{
-                setIsLoadingCurrentLoansCount(false);
-                setHttpError(error.message);
-            });
+    const history = useHistory();
+    const dispatch = useAppDispatch();
 
-        }
-    }, [userToken]);
-    if(currentLoansCount>0){
-        console.log(currentLoansCount);
-    }
-
-   
-
+    // Is Book Check Out?
+    const [isCheckedOut, setIsCheckedOut] = useState(false);
+    const [isLoadingBookCheckedOut, setIsLoadingBookCheckedOut] = useState(true);
 
     const [book, setBook] = useState<BookModel>();
     const [httpError, setHttpError] = useState(null);
@@ -56,12 +40,62 @@ export const BookCheckoutPage = () => {
     const [isLoadingReview, setIsLoadingReview] = useState(true);
 
 
-    const {
-        data: responseData,
-        isSuccess: isGetBooksucccess,
-        isError: isGetBookError,
-        error: GetBookError
-    } = useGetbooksQuery(`/${bookId}`);
+    useEffect(() => {
+        if (userToken) {
+            //số lượng đang checkout
+            const url = "http://localhost:8080/api/books/secure/currentloans/count";
+            const requestOptions = {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+            axios(url, requestOptions)
+                .then(response => {
+                    setCurrentLoansCount(response.data);
+                    setIsLoadingCurrentLoansCount(false);
+                })
+                .catch(error => {
+                    setIsLoadingCurrentLoansCount(false);
+                    if (error.response && error.response.status === 401) {
+                        history.push("/login");
+                        dispatch(logout());
+                        toast.error("Token has expired, you need to login again to access the page.");
+                    } else {
+                        setHttpError(error.message);
+                    }
+                });
+
+            //check xem đã checkout
+            const urlTwo = `http://localhost:8080/api/books/secure/ischeckout/byuser?bookId=${bookId}`;
+            const requestOptionsTwo = {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+            axios(urlTwo, requestOptionsTwo)
+                .then(response => {
+                    setIsCheckedOut(response.data);
+                    setIsLoadingBookCheckedOut(false);
+                })
+                .catch(error => {
+                    if (error.response && error.response.status === 401) {
+                        history.push("/login");
+                        dispatch(logout());
+                        toast.error("Token has expired, you need to login again to access the page.");
+                    } else {
+                        setHttpError(error.message);
+                    }
+                });
+
+        } else {
+            history.push("/login");
+            toast.error("You need to login to access the page.");
+        }
+    }, [userToken, isCheckedOut]);
 
 
     useEffect(() => {
@@ -97,49 +131,62 @@ export const BookCheckoutPage = () => {
     }, []);
 
     useEffect(() => {
+        const url = `http://localhost:8080/api/books/${bookId}`;
+        axios.get(url)
+            .then(response => {
+                const responseData = response.data
+                const loadedBook: BookModel = {
+                    id: bookId,
+                    title: responseData.title,
+                    author: responseData.author,
+                    description: responseData.description,
+                    copies: responseData.copies,
+                    copiesAvailable: responseData.copiesAvailable,
+                    category: responseData.category,
+                    img: responseData.img,
+                };
+                setBook(loadedBook);
+                setIsLoading(false);
+            }).catch(error => {
+                setIsLoading(false);
+                setHttpError(error.message);
+            });
 
-        if (isGetBooksucccess && responseData) {
+    }, [isCheckedOut]);
 
-            const response = responseData;
-
-            const loadedBook: BookModel = {
-                id: parseInt(bookId),
-                title: response.title,
-                author: response.author,
-                description: response.description,
-                copies: response.copies,
-                copiesAvailable: response.copiesAvailable,
-                category: response.category,
-                img: response.img,
-            };
-            // console.log(loadedBook);
-            setBook(loadedBook);
-            setIsLoading(false);
+    async function checkoutBook() {
+        const url = `http://localhost:8080/api/books/secure/checkout?bookId=${bookId}`;
+        const requestOptions = {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${userToken}`,
+                'Content-Type': 'application/json'
+            }
         }
+        axios(url, requestOptions)
+            .then(response => {
+                setIsCheckedOut(true);
+            })
+            .catch(error => {
+                setIsCheckedOut(false);
+                toast.error(error.error);
+            });
 
-        if (isGetBookError && GetBookError) {
-            //  throw new Error('Some thing went wrong!');
-            setHttpError(httpError);
-        }
+    }
+    console.log(isCheckedOut);
 
-
-    }, [isGetBooksucccess, responseData, isGetBookError, GetBookError]);
-
-
-
-
-    if (isGetBookError) {
+    if (httpError) {
         return (
-            <div>
-                {httpError}
-            </div>
+            <div>{httpError}</div>
         );
     }
-    if(isLoadingReview || isLoadingCurrentLoansCount){
-        return(
-            <SpinerLoading/>
+
+    if (isLoadingReview || isLoadingCurrentLoansCount || isLoadingBookCheckedOut) {
+        return (
+            <SpinerLoading />
         );
     }
+
     return (
         <div>
             <div className="container d-none d-lg-block">
@@ -157,7 +204,8 @@ export const BookCheckoutPage = () => {
                             <StarsReview Rating={totalStars} size={32} />
                         </div>
                     </div>
-                    <CheckoutAndReviewBox book={book} mobile={false} currentLoanscount={currentLoansCount} />
+                    <CheckoutAndReviewBox book={book} mobile={false} currentLoanscount={currentLoansCount}
+                        isCheckout={isCheckedOut} checkoutBook={checkoutBook} />
                 </div>
                 <hr />
                 <LastestReview reviews={reviews} bookId={book?.id} mobile={false} />
@@ -176,7 +224,8 @@ export const BookCheckoutPage = () => {
                         <StarsReview Rating={totalStars} size={32} />
                     </div>
                 </div>
-                <CheckoutAndReviewBox book={book} mobile={true} currentLoanscount={currentLoansCount}/>
+                <CheckoutAndReviewBox book={book} mobile={true} currentLoanscount={currentLoansCount}
+                    isCheckout={isCheckedOut} checkoutBook={checkoutBook} />
                 <hr />
                 <LastestReview reviews={reviews} bookId={book?.id} mobile={true} />
             </div>

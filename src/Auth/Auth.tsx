@@ -60,10 +60,11 @@ export const Auth = ()=>{
     };
 
     useEffect(() => {
-        if (isLoginSuccess) {
+        if (isLoginSuccess && loginData) {
+          dispatch(setUser({name: loginData.email, token: loginData.access_token})); 
           toast.success("User Login Successfully");
           history.push('/search');
-          dispatch(setUser({name: loginData.email, token: loginData.access_token}));
+         
           console.log(loginData);
         } else if (isLoginError) {
           toast.error("Login failed. Please check your credentials");
