@@ -12,6 +12,8 @@ import { logout, selectAuth } from "../../features/authSlice";
 import { SpinerLoading } from "../Untils/SpinerLoading";
 import { useHistory } from "react-router-dom";
 import { toast } from "react-toastify";
+import { error } from "console";
+import ReviewRequestModel from "../../models/ReviewRequestModel";
 
 export const BookCheckoutPage = () => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -39,6 +41,8 @@ export const BookCheckoutPage = () => {
     const [totalStars, setTotalStars] = useState(0);
     const [isLoadingReview, setIsLoadingReview] = useState(true);
 
+    const [isReviewLeft, setIsReviewLeft] = useState(false);
+    const [isLoadingUserReview, setIsLoadingUserReview] = useState(true);
 
     useEffect(() => {
         if (userToken) {
@@ -62,8 +66,8 @@ export const BookCheckoutPage = () => {
                         history.push("/login");
                         dispatch(logout());
                         toast.error("Token has expired, you need to login again to access the page.");
-                    } else {
-                        setHttpError(error.message);
+                    } else if (error.response && error.response.data) {
+                        setHttpError(error.response.data.error);
                     }
                 });
 
@@ -86,8 +90,8 @@ export const BookCheckoutPage = () => {
                         history.push("/login");
                         dispatch(logout());
                         toast.error("Token has expired, you need to login again to access the page.");
-                    } else {
-                        setHttpError(error.message);
+                    } else if (error.response && error.response.data) {
+                        setHttpError(error.response.data.error);
                     }
                 });
 
@@ -128,7 +132,7 @@ export const BookCheckoutPage = () => {
                 setHttpError(error.message);
             });
 
-    }, []);
+    }, [isReviewLeft]);
 
     useEffect(() => {
         const url = `http://localhost:8080/api/books/${bookId}`;
@@ -154,6 +158,30 @@ export const BookCheckoutPage = () => {
 
     }, [isCheckedOut]);
 
+    useEffect(() => {
+        if (userToken) {
+            const url = `http://localhost:8080/api/reviews/secure/user/book?bookId=${bookId}`;
+            const requestOptions = {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                    'Content' : 'application/json',
+                }
+            }
+
+            axios(url, requestOptions)
+            .then(response=>{
+                console.log(response);
+                setIsReviewLeft(response.data);
+            }).catch(error=>{
+                setIsLoadingUserReview(false);
+                setHttpError(error.response.data.error);
+            })
+           
+        }
+        setIsLoadingReview(false); 
+    }, [userToken])
+
     async function checkoutBook() {
         const url = `http://localhost:8080/api/books/secure/checkout?bookId=${bookId}`;
         const requestOptions = {
@@ -173,7 +201,36 @@ export const BookCheckoutPage = () => {
             });
 
     }
-    console.log(isCheckedOut);
+
+    async function submintReview(starInput:number, reviewDescription: string) {
+        let bookId: number = 0;
+        if(book?.id){
+            bookId=book?.id;
+        }
+        const reviewRequestModel = new ReviewRequestModel(starInput, bookId, reviewDescription);
+        const url = `http://localhost:8080/api/reviews/secure`;
+        const requestOptions = {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${userToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(reviewRequestModel),
+        };
+        const returnResponse = await fetch(url, requestOptions);
+        if(!returnResponse.ok){
+            console.log(returnResponse);
+        }
+        // await axios(url, requestOptions)
+        // .then(response=>{
+
+        // }).catch(error=>{
+        //     console.log(error);
+        //     setHttpError(error.response.data.error);
+        // });
+        setIsReviewLeft(true);
+    }
+
 
     if (httpError) {
         return (
@@ -181,7 +238,7 @@ export const BookCheckoutPage = () => {
         );
     }
 
-    if (isLoadingReview || isLoadingCurrentLoansCount || isLoadingBookCheckedOut) {
+    if (isLoadingReview || isLoadingCurrentLoansCount || isLoadingBookCheckedOut || isLoadingReview) {
         return (
             <SpinerLoading />
         );
@@ -205,7 +262,8 @@ export const BookCheckoutPage = () => {
                         </div>
                     </div>
                     <CheckoutAndReviewBox book={book} mobile={false} currentLoanscount={currentLoansCount}
-                        isCheckout={isCheckedOut} checkoutBook={checkoutBook} />
+                        isCheckout={isCheckedOut} checkoutBook={checkoutBook} isReviewLeft={isReviewLeft}
+                        submitReview={submintReview}/>
                 </div>
                 <hr />
                 <LastestReview reviews={reviews} bookId={book?.id} mobile={false} />
@@ -225,7 +283,7 @@ export const BookCheckoutPage = () => {
                     </div>
                 </div>
                 <CheckoutAndReviewBox book={book} mobile={true} currentLoanscount={currentLoansCount}
-                    isCheckout={isCheckedOut} checkoutBook={checkoutBook} />
+                    isCheckout={isCheckedOut} checkoutBook={checkoutBook} isReviewLeft={isReviewLeft} submitReview={submintReview}/>
                 <hr />
                 <LastestReview reviews={reviews} bookId={book?.id} mobile={true} />
             </div>

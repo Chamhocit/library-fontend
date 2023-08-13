@@ -1,9 +1,23 @@
 import { Link } from "react-router-dom";
 import BookModel from "../../models/BookModel";
 
+import { LeaveAReview } from "../Untils/LeaveAReview";
+
 export const CheckoutAndReviewBox: React.FC<{book: BookModel|undefined, mobile: boolean, 
     currentLoanscount: number, isCheckout:boolean
-    checkoutBook: any}>=(props)=>{
+    checkoutBook: any, isReviewLeft:boolean, submitReview:any}>=(props)=>{
+
+    function reviewRender(){
+        if(!props.isReviewLeft){
+            return(
+                <LeaveAReview submitReview={props.submitReview}/>
+            )
+        }else{
+            return(
+                <p><b>Thank you for your review!</b></p>
+            );
+        }
+    }
     
     return(
         <div className={props.mobile ? 'card d-flex mt-5' : 'card col-3 container d-flex mb-5'}>
@@ -36,9 +50,8 @@ export const CheckoutAndReviewBox: React.FC<{book: BookModel|undefined, mobile: 
                 <p className="mt-3">
                     This number can change until placing order has been complete.
                 </p>
-                <p>
-                You are posted in, you can go to review.
-                </p>
+               
+               {reviewRender()}
             </div>
         </div>
     );
