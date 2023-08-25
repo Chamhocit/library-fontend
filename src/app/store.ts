@@ -4,6 +4,8 @@ import { authApi } from "../services/authApi";
 import { bookApi } from "../services/bookApi";
 import authReducer from "../features/authSlice";
 import { reviewApi } from "../services/reviewApi";
+import authNameReducer from "../features/nameSlice";
+
 
 
 export const store = configureStore({
@@ -12,6 +14,7 @@ export const store = configureStore({
         [bookApi.reducerPath]: bookApi.reducer,
         [reviewApi.reducerPath]: reviewApi.reducer, 
         auth: authReducer,
+        authName: authNameReducer,
     },
     middleware:(getDefaultMiddleware)=>getDefaultMiddleware().concat(authApi.middleware).concat(bookApi.middleware).concat(reviewApi.middleware),
 });

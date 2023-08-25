@@ -5,24 +5,26 @@ import {Navbar} from "./layouts/NavbarAndFooter/Navbar";
 import {Footer} from "./layouts/NavbarAndFooter/Footer";
 import {HomePage} from "./layouts/HomePage/HomePage";
 import { SearchBookPage } from './layouts/SearchBookPage/SearchBookPage';
-import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import { Auth } from './Auth/Auth';
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from 'react-redux';
 import {useEffect} from "react";
-import { selectAuth, setUser } from './features/authSlice';
 import { BookCheckoutPage } from './layouts/BookCheckoutPage/BookcheckoutPage';
-import { useAppSelector } from './app/hooks';
+import { ReviewListPage } from './layouts/BookCheckoutPage/ReviewListPage';
+import { setUserName } from './features/nameSlice';
 
 export const App=()=> {
-  const dispatch = useDispatch();
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+ 
+ const userName = localStorage.getItem("userName")||"";
+ const dispath = useDispatch();
+
   useEffect(()=>{
-      dispatch(setUser(user));
-
+    if(userName !== null ){
+       dispath(setUserName(userName));
+    }
   }, []);
-
   
   return (
       <div className='d-flex flex-column min-vh-100'>
@@ -48,6 +50,10 @@ export const App=()=> {
             </Route>
             <Route path="/checkout/:bookId">
                 <BookCheckoutPage/>
+            </Route>
+
+            <Route path="/reviewlist/:bookId">
+                <ReviewListPage/>
             </Route>
           </Switch>
           </div>

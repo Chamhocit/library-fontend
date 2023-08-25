@@ -5,34 +5,35 @@ import {useEffect, useState} from "react";
 import { logout, selectAuth, setUser } from "../../features/authSlice";
 import { toast } from "react-toastify";
 import { useLogoutUserMutation } from "../../services/authApi";
+import { removeUsername, selectAuthName } from "../../features/nameSlice";
+import api from "../../models/api";
+import axios from "axios";
 
 export const Navbar=()=>{
    
     const [showName, setShowName] = useState(false);
-    const {name, token} = useAppSelector(selectAuth);
-    const dispatch = useAppDispatch();
+    
+    const {userName} = useAppSelector(selectAuthName);
+    const dispath = useAppDispatch();
     const history = useHistory();
-    const [logoutUser, {
-        isSuccess: isLogoutSuccess,
-    }] = useLogoutUserMutation();
     useEffect(()=>{
-        if(isLogoutSuccess){
-            console.log(isLogoutSuccess);
-            dispatch(logout());
-            toast.success("User Logout Successfully");
-            history.push("/home");
-        }
-        if(name){
+        if(userName){
             setShowName(true);
         }else{
             setShowName(false);
         }
-    }, [name, isLogoutSuccess]);
+    }, [userName]);
 
-    const handleLogout =  async() => {
-        if(token){
-          await logoutUser(token); 
-        }
+    const handleLogout =  () => {
+        api.post('http://localhost:8080/api/auth/logout')
+        .then(response=>{
+          dispath(removeUsername());
+          history.push("/login");
+          toast.success(response.data);
+          console.log(response.data);
+        }).catch(error=>{
+           toast.error(error.response.data.error);
+        });
     };
    
 
@@ -58,9 +59,9 @@ export const Navbar=()=>{
                     <ul className="navbar-nav ms-auto">
                         {showName ? (
                             <>
-                             <span className="navbar-brand">Welcome {name}</span>
+                             <span className="navbar-brand">Welcome {userName}</span>
                             <li className="nav-item m-1">
-                                <button onClick={()=>handleLogout()} type="button" className="btn btn-outline-light" >LogOut</button>
+                                <button onClick={()=>handleLogout()} type="button" className="btn btn-outline-light">LogOut</button>
                             </li>
                             </>
                         ) : (

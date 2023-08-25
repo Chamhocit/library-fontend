@@ -7,6 +7,8 @@ import { useAppDispatch } from "../app/hooks";
 import { setUser } from "../features/authSlice";
 import Role from "../models/Role";
 import axios from "axios";
+import { setUserName } from "../features/nameSlice";
+import api from "../models/api";
 const initialState = {
     name: "",
     phone: "",
@@ -20,7 +22,7 @@ export const Auth = () => {
     const { name, phone, email, password, confirmPassword } = formValue;
     const [showRegister, setShowRegister] = useState(false);
     const history = useHistory();
-    const dispatch = useAppDispatch();
+    const dispath = useAppDispatch();
     const handleChange = (e: any) => {
         setFormValue({ ...formValue, [e.target.name]: e.target.value });
     };
@@ -40,16 +42,16 @@ export const Auth = () => {
     ] = useRegisterUserMutation();
 
     const handleLogin = async () => {
-        await axios.post("http://localhost:8080/api/auth/authenticate", {
+        await api.post("http://localhost:8080/api/auth/authenticate", {
             email: email,
             password: password
         }).then(response => {
-            dispatch(setUser({ name: response.data.email, token: response.data.access_token }));
+            dispath(setUserName(response.data.name));
             toast.success("User Login Successfully");
             history.push('/search');
-
         }).catch(error => {
             toast.error(error.response.data.error);
+            
             console.log(error);
         });
 
@@ -71,7 +73,6 @@ export const Auth = () => {
         }
         if (isRegisError && regisError) {
             toast.error("User registration failed");
-            // console.log(regisError);
             const { name: dataErrorName, phone: dataErrorPhone, email: dataErrorEmail, password: dataErrorPassword } = (regisError as any).data;
             if (dataErrorName) { setErrorName(dataErrorName) } else { setErrorName('') };
             if (dataErrorPhone) { setErrorPhone(dataErrorPhone) } else { setErrorPhone('') };
