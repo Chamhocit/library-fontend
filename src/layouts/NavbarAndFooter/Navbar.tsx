@@ -8,10 +8,12 @@ import { useLogoutUserMutation } from "../../services/authApi";
 import { removeUsername, selectAuthName } from "../../features/nameSlice";
 import api from "../../models/api";
 import axios from "axios";
+import { ShelfPage } from "../ShelfPage/ShelfPage";
 
 export const Navbar=()=>{
    
     const [showName, setShowName] = useState(false);
+    const [showShelft, setShowSelft] = useState(false);
     
     const {userName} = useAppSelector(selectAuthName);
     const dispath = useAppDispatch();
@@ -19,8 +21,10 @@ export const Navbar=()=>{
     useEffect(()=>{
         if(userName){
             setShowName(true);
+            setShowSelft(true);
         }else{
             setShowName(false);
+            setShowSelft(false);
         }
     }, [userName]);
 
@@ -29,10 +33,10 @@ export const Navbar=()=>{
         .then(response=>{
           dispath(removeUsername());
           history.push("/login");
-          toast.success(response.data);
-          console.log(response.data);
+          toast.success(response.data.message);
+          console.log(response);
         }).catch(error=>{
-           toast.error(error.response.data.error);
+           toast.error(error.response.data.message);
         });
     };
    
@@ -55,6 +59,10 @@ export const Navbar=()=>{
                         <li className="nav-item">
                             <NavLink className="nav-link" to="/search">Search Books</NavLink>
                         </li>
+                        {showShelft && 
+                        <li className="nav-item">
+                        <NavLink className="nav-link" to="/shelf">Shelf</NavLink>
+                    </li>}
                     </ul>
                     <ul className="navbar-nav ms-auto">
                         {showName ? (

@@ -43,211 +43,160 @@ export const BookCheckoutPage = () => {
     const [isReviewLeft, setIsReviewLeft] = useState(false);
     const [isLoadingUserReview, setIsLoadingUserReview] = useState(true);
 
-    const [jwtToken, setJwtToken] = useState("");
+    const [authenticate, setAuthenticate] = useState(false);
     useEffect(()=>{
          api.get('http://localhost:8080/api/books/authenticate')
         .then(response=>{
-            setJwtToken(response.data);
-            console.log(jwtToken);
+            setAuthenticate(true);
+            console.log(response);
         }).catch(error=>{
             history.push("/login");
             toast.error("You need to login again to access the page.");
+            console.log(error);
         });
-    }, [jwtToken]);
+    }, []);
 
 
-    // useEffect(() => {
-    //     if (userToken) {
-    //         //số lượng đang checkout
-    //         const url = "http://localhost:8080/api/books/secure/currentloans/count";
-    //         const requestOptions = {
-    //             method: "GET",
-    //             headers: {
-    //                 Authorization: `Bearer ${userToken}`,
-    //                 'Content-Type': 'application/json'
-    //             }
-    //         };
-    //         axios(url, requestOptions)
-    //             .then(response => {
-    //                 setCurrentLoansCount(response.data);
-    //                 setIsLoadingCurrentLoansCount(false);
-    //             })
-    //             .catch(error => {
-    //                 setIsLoadingCurrentLoansCount(false);
-    //                 if (error.response && error.response.status === 401) {
-    //                     history.push("/login");
-    //                     dispatch(logout());
-    //                     toast.error("Token has expired, you need to login again to access the page.");
-    //                 } else if (error.response && error.response.data) {
-    //                     setHttpError(error.response.data.error);
-    //                 }
-    //             });
+    useEffect(() => {
+        
+            //số lượng đang checkout
+            const url = "http://localhost:8080/api/books/secure/currentloans/count";
+            api.get(url)
+                .then(response => {
+                    setCurrentLoansCount(response.data);
+                    setIsLoadingCurrentLoansCount(false);
+                })
+                .catch(error => {
+                    setIsLoadingCurrentLoansCount(false);
+                    setHttpError(error.response.data.error);
+                });
 
-    //         //check xem đã checkout
-    //         const urlTwo = `http://localhost:8080/api/books/secure/ischeckout/byuser?bookId=${bookId}`;
-    //         const requestOptionsTwo = {
-    //             method: 'GET',
-    //             headers: {
-    //                 Authorization: `Bearer ${userToken}`,
-    //                 'Content-Type': 'application/json'
-    //             }
-    //         };
-    //         axios(urlTwo, requestOptionsTwo)
-    //             .then(response => {
-    //                 setIsCheckedOut(response.data);
-    //                 setIsLoadingBookCheckedOut(false);
-    //             })
-    //             .catch(error => {
-    //                 if (error.response && error.response.status === 401) {
-    //                     history.push("/login");
-    //                     dispatch(logout());
-    //                     toast.error("Token has expired, you need to login again to access the page.");
-    //                 } else if (error.response && error.response.data) {
-    //                     setHttpError(error.response.data.error);
-    //                 }
-    //             });
-
-    //     } else {
-    //         history.push("/login");
-    //         toast.error("You need to login to access the page.");
-    //     }
-    // }, [userToken, isCheckedOut]);
+            //check xem đã checkout
+            const urlTwo = `http://localhost:8080/api/books/secure/ischeckout/byuser?bookId=${bookId}`;
+            
+            api.get(urlTwo)
+                .then(response => {
+                    setIsCheckedOut(response.data);
+                    setIsLoadingBookCheckedOut(false);
+                })
+                .catch(error => {
+                    setHttpError(error.response.data.error);
+                    setIsLoadingBookCheckedOut(false);
+                });
+        
+    }, [isCheckedOut]);
 
 
-    // useEffect(() => {
-    //     axios.get(`http://localhost:8080/api/reviews/search/findByBookId?bookId=${bookId}`)
-    //         .then(response => {
-    //             const dataReview = response.data._embedded.reviews;
+    useEffect(() => {
+        axios.get(`http://localhost:8080/api/reviews/search/findByBookId?bookId=${bookId}`)
+            .then(response => {
+                const dataReview = response.data._embedded.reviews;
 
-    //             const loadedReviews: ReviewModel[] = [];
-    //             let weighStarReview: number = 0;
-    //             for (const key in dataReview) {
-    //                 loadedReviews.push({
-    //                     id: dataReview[key].id,
-    //                     userEmail: dataReview[key].userEmail,
-    //                     date: dataReview[key].date,
-    //                     rating: dataReview[key].rating,
-    //                     book_id: dataReview[key].bookId,
-    //                     reviewDescription: dataReview[key].reviewDescription,
-    //                 });
-    //                 weighStarReview += dataReview[key].rating;
-    //             };
-    //             if (loadedReviews) {
-    //                 setReviews(loadedReviews);
-    //                 const round = (Math.round((weighStarReview / loadedReviews.length) * 2) / 2).toFixed(1);
-    //                 setTotalStars(Number(round));
-    //                 setIsLoadingReview(false);
-    //             }
+                const loadedReviews: ReviewModel[] = [];
+                let weighStarReview: number = 0;
+                for (const key in dataReview) {
+                    loadedReviews.push({
+                        id: dataReview[key].id,
+                        userEmail: dataReview[key].userEmail,
+                        date: dataReview[key].date,
+                        rating: dataReview[key].rating,
+                        book_id: dataReview[key].bookId,
+                        reviewDescription: dataReview[key].reviewDescription,
+                    });
+                    weighStarReview += dataReview[key].rating;
+                };
+                if (loadedReviews) {
+                    setReviews(loadedReviews);
+                    const round = (Math.round((weighStarReview / loadedReviews.length) * 2) / 2).toFixed(1);
+                    setTotalStars(Number(round));
+                    setIsLoadingReview(false);
+                }
 
-    //         }).catch(error => {
-    //             setIsLoadingReview(false);
-    //             setHttpError(error.message);
-    //         });
+            }).catch(error => {
+                setIsLoadingReview(false);
+                setHttpError(error.message);
+            });
+    }, [isReviewLeft]);
 
-    // }, [isReviewLeft]);
+    useEffect(() => {
+        const url = `http://localhost:8080/api/books/${bookId}`;
+        axios.get(url)
+            .then(response => {
+                const responseData = response.data
+                const loadedBook: BookModel = {
+                    id: bookId,
+                    title: responseData.title,
+                    author: responseData.author,
+                    description: responseData.description,
+                    copies: responseData.copies,
+                    copiesAvailable: responseData.copiesAvailable,
+                    category: responseData.category,
+                    img: responseData.img,
+                };
+                setBook(loadedBook);
+                setIsLoading(false);
+            }).catch(error => {
+                setIsLoading(false);
+                setHttpError(error.message);
+            });
 
-    // useEffect(() => {
-    //     const url = `http://localhost:8080/api/books/${bookId}`;
-    //     axios.get(url)
-    //         .then(response => {
-    //             const responseData = response.data
-    //             const loadedBook: BookModel = {
-    //                 id: bookId,
-    //                 title: responseData.title,
-    //                 author: responseData.author,
-    //                 description: responseData.description,
-    //                 copies: responseData.copies,
-    //                 copiesAvailable: responseData.copiesAvailable,
-    //                 category: responseData.category,
-    //                 img: responseData.img,
-    //             };
-    //             setBook(loadedBook);
-    //             setIsLoading(false);
-    //         }).catch(error => {
-    //             setIsLoading(false);
-    //             setHttpError(error.message);
-    //         });
+    }, [isCheckedOut]);
 
-    // }, [isCheckedOut]);
+    useEffect(() => {
+        
+            const url = `http://localhost:8080/api/reviews/secure/user/book?bookId=${bookId}`;
+            api.get(url)
+            .then(response=>{
+                console.log(response);
+                setIsReviewLeft(response.data);
+            }).catch(error=>{
+                setIsLoadingUserReview(false);
+                setHttpError(error.response.data.error);
+            })
+        
+        setIsLoadingReview(false); 
+    }, [authenticate])
 
-    // useEffect(() => {
-    //     if (userToken) {
-    //         const url = `http://localhost:8080/api/reviews/secure/user/book?bookId=${bookId}`;
-    //         const requestOptions = {
-    //             method: "GET",
-    //             headers: {
-    //                 Authorization: `Bearer ${userToken}`,
-    //                 'Content' : 'application/json',
-    //             }
-    //         }
+    async function checkoutBook() {
+        const url = `http://localhost:8080/api/books/secure/checkout?bookId=${bookId}`;
+        api.put(url)
+            .then(response => {
+                setIsCheckedOut(true);
+            })
+            .catch(error => {
+                setIsCheckedOut(false);
+                toast.error(error.error);
+            });
+    }
 
-    //         axios(url, requestOptions)
-    //         .then(response=>{
-    //             console.log(response);
-    //             setIsReviewLeft(response.data);
-    //         }).catch(error=>{
-    //             setIsLoadingUserReview(false);
-    //             setHttpError(error.response.data.error);
-    //         })
-           
-    //     }
-    //     setIsLoadingReview(false); 
-    // }, [userToken])
-
-    // async function checkoutBook() {
-    //     const url = `http://localhost:8080/api/books/secure/checkout?bookId=${bookId}`;
-    //     const requestOptions = {
-    //         method: "PUT",
-    //         headers: {
-    //             Authorization: `Bearer ${userToken}`,
-    //             'Content-Type': 'application/json'
-    //         }
-    //     }
-    //     axios(url, requestOptions)
-    //         .then(response => {
-    //             setIsCheckedOut(true);
-    //         })
-    //         .catch(error => {
-    //             setIsCheckedOut(false);
-    //             toast.error(error.error);
-    //         });
-
-    // }
-
-    // async function submintReview(starInput:number, reviewDescription: string) {
-    //     let bookId: number = 0;
-    //     if(book?.id){
-    //         bookId=book?.id;
-    //     }
-    //     const reviewRequestModel = new ReviewRequestModel(starInput, bookId, reviewDescription);
-    //     const url = `http://localhost:8080/api/reviews/secure`;
-    //     const requestOptions = {
-    //         method: "POST",
-    //         headers: {
-    //             Authorization: `Bearer ${userToken}`,
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify(reviewRequestModel),
-    //     };
-    //     const returnResponse = await fetch(url, requestOptions);
-    //     if(!returnResponse.ok){
-    //         console.log(returnResponse);
-    //     }
-    //     setIsReviewLeft(true);
-    // }
+    async function submintReview(starInput:number, reviewDescription: string) {
+        let bookId: number = 0;
+        if(book?.id){
+            bookId=book?.id;
+        }
+        const reviewRequestModel = new ReviewRequestModel(starInput, bookId, reviewDescription);
+        const url = `http://localhost:8080/api/reviews/secure`;
+        api.post(url, JSON.stringify(reviewRequestModel))
+        .then(response=>{
+            const returnResponse = response;
+        }).catch(error=>{
+            console.log(error);
+        })
+        setIsReviewLeft(true);
+    }
 
 
-    // if (httpError) {
-    //     return (
-    //         <div>{httpError}</div>
-    //     );
-    // }
+    if (httpError) {
+        return (
+            <div>{httpError}</div>
+        );
+    }
 
-    // if (isLoadingReview || isLoadingCurrentLoansCount || isLoadingBookCheckedOut || isLoadingReview) {
-    //     return (
-    //         <SpinerLoading />
-    //     );
-    // }
+    if (isLoadingReview || isLoadingCurrentLoansCount || isLoadingBookCheckedOut || isLoadingReview) {
+        return (
+            <SpinerLoading />
+        );
+    }
 
     return (
         <div>
@@ -266,9 +215,9 @@ export const BookCheckoutPage = () => {
                             <StarsReview Rating={totalStars} size={32} />
                         </div>
                     </div>
-                    {/* <CheckoutAndReviewBox book={book} mobile={false} currentLoanscount={currentLoansCount}
+                    <CheckoutAndReviewBox book={book} mobile={false} currentLoanscount={currentLoansCount}
                         isCheckout={isCheckedOut} checkoutBook={checkoutBook} isReviewLeft={isReviewLeft}
-                        submitReview={submintReview}/> */}
+                        submitReview={submintReview}/>
                 </div>
                 <hr />
                 <LastestReview reviews={reviews} bookId={book?.id} mobile={false} />
@@ -287,8 +236,8 @@ export const BookCheckoutPage = () => {
                         <StarsReview Rating={totalStars} size={32} />
                     </div>
                 </div>
-                {/* <CheckoutAndReviewBox book={book} mobile={true} currentLoanscount={currentLoansCount}
-                    isCheckout={isCheckedOut} checkoutBook={checkoutBook} isReviewLeft={isReviewLeft} submitReview={submintReview}/> */}
+                <CheckoutAndReviewBox book={book} mobile={true} currentLoanscount={currentLoansCount}
+                    isCheckout={isCheckedOut} checkoutBook={checkoutBook} isReviewLeft={isReviewLeft} submitReview={submintReview}/>
                 <hr />
                 <LastestReview reviews={reviews} bookId={book?.id} mobile={true} />
             </div>

@@ -1,4 +1,22 @@
+import { useEffect, useState } from "react";
+import api from "../../models/api";
+import { useHistory } from "react-router-dom";
+import { toast } from "react-toastify";
+
 export const ShelfPage = ()=>{
+    const [authenticate, setAuthenticate] = useState(false);
+    const history = useHistory();
+    useEffect(()=>{
+         api.get('http://localhost:8080/api/books/authenticate')
+        .then(response=>{
+            setAuthenticate(response.data);
+            console.log(response);
+        }).catch(error=>{
+            history.push("/login");
+            toast.error("You need to login again to access the page.");
+            console.log(error);
+        });
+    }, []);
     return(
         <div className="container">
             <div className="mt-3">

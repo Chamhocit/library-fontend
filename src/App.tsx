@@ -14,6 +14,7 @@ import {useEffect} from "react";
 import { BookCheckoutPage } from './layouts/BookCheckoutPage/BookcheckoutPage';
 import { ReviewListPage } from './layouts/BookCheckoutPage/ReviewListPage';
 import { setUserName } from './features/nameSlice';
+import { ShelfPage } from './layouts/ShelfPage/ShelfPage';
 
 export const App=()=> {
  
@@ -54,6 +55,9 @@ export const App=()=> {
 
             <Route path="/reviewlist/:bookId">
                 <ReviewListPage/>
+            </Route>
+            <Route path='/shelf'>
+                <ShelfPage/>
             </Route>
           </Switch>
           </div>
