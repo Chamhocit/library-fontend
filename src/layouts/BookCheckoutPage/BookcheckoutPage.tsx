@@ -8,13 +8,13 @@ import ReviewModel from "../../models/ReviewModel";
 import { LastestReview } from "./LastestReview";
 import axios from "axios";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { logout, selectAuth } from "../../features/authSlice";
 import { SpinerLoading } from "../Untils/SpinerLoading";
 import { useHistory } from "react-router-dom";
 import { toast } from "react-toastify";
-import { error } from "console";
 import ReviewRequestModel from "../../models/ReviewRequestModel";
 import api from "../../models/api";
+import Cookies from "js-cookie";
+
 
 export const BookCheckoutPage = () => {
     
@@ -43,19 +43,15 @@ export const BookCheckoutPage = () => {
     const [isReviewLeft, setIsReviewLeft] = useState(false);
     const [isLoadingUserReview, setIsLoadingUserReview] = useState(true);
 
-    const [authenticate, setAuthenticate] = useState(false);
-    useEffect(()=>{
-         api.get('http://localhost:8080/api/books/authenticate')
-        .then(response=>{
-            setAuthenticate(true);
-            console.log(response);
-        }).catch(error=>{
-            history.push("/login");
-            toast.error("You need to login again to access the page.");
-            console.log(error);
-        });
-    }, []);
 
+    const userEmail = Cookies.get("userName");
+    if(userEmail){
+        console.log(userEmail);
+    }else{
+        history.push("/login");
+        toast.error("You need to login again to access the page.");
+    }
+    
 
     useEffect(() => {
         
@@ -147,7 +143,6 @@ export const BookCheckoutPage = () => {
             const url = `http://localhost:8080/api/reviews/secure/user/book?bookId=${bookId}`;
             api.get(url)
             .then(response=>{
-                console.log(response);
                 setIsReviewLeft(response.data);
             }).catch(error=>{
                 setIsLoadingUserReview(false);
@@ -155,7 +150,7 @@ export const BookCheckoutPage = () => {
             })
         
         setIsLoadingReview(false); 
-    }, [authenticate])
+    }, [])
 
     async function checkoutBook() {
         const url = `http://localhost:8080/api/books/secure/checkout?bookId=${bookId}`;
@@ -165,7 +160,7 @@ export const BookCheckoutPage = () => {
             })
             .catch(error => {
                 setIsCheckedOut(false);
-                toast.error(error.error);
+                toast.error(error.response.data.error);
             });
     }
 
@@ -176,13 +171,13 @@ export const BookCheckoutPage = () => {
         }
         const reviewRequestModel = new ReviewRequestModel(starInput, bookId, reviewDescription);
         const url = `http://localhost:8080/api/reviews/secure`;
-        api.post(url, JSON.stringify(reviewRequestModel))
+        api.post(url, reviewRequestModel)
         .then(response=>{
-            const returnResponse = response;
+            setIsReviewLeft(true);
         }).catch(error=>{
             console.log(error);
         })
-        setIsReviewLeft(true);
+        
     }
 
 

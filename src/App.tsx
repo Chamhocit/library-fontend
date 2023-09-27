@@ -15,9 +15,11 @@ import { BookCheckoutPage } from './layouts/BookCheckoutPage/BookcheckoutPage';
 import { ReviewListPage } from './layouts/BookCheckoutPage/ReviewListPage';
 import { setUserName } from './features/nameSlice';
 import { ShelfPage } from './layouts/ShelfPage/ShelfPage';
+import { MessagesPage } from './layouts/MessagesPage/MessagesPage';
+import { ManageLibraryPage } from './layouts/ManageLibraryPage/ManageLibraryPage';
 
 export const App=()=> {
- 
+
  const userName = localStorage.getItem("userName")||"";
  const dispath = useDispatch();
 
@@ -58,6 +60,12 @@ export const App=()=> {
             </Route>
             <Route path='/shelf'>
                 <ShelfPage/>
+            </Route>
+            <Route path='/messages'>
+                <MessagesPage/>
+            </Route>
+            <Route path="/admin">
+                <ManageLibraryPage/>
             </Route>
           </Switch>
           </div>

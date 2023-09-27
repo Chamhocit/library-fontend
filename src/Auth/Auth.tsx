@@ -4,9 +4,9 @@ import { useLoginUserMutation, useRegisterUserMutation } from "../services/authA
 import { toast } from "react-toastify";
 import { useHistory } from "react-router"
 import { useAppDispatch } from "../app/hooks";
-import { setUser } from "../features/authSlice";
+
 import Role from "../models/Role";
-import axios from "axios";
+
 import { setUserName } from "../features/nameSlice";
 import api from "../models/api";
 const initialState = {
@@ -51,7 +51,6 @@ export const Auth = () => {
             history.push('/search');
         }).catch(error => {
             toast.error(error.response.data.error);
-            
             console.log(error);
         });
 

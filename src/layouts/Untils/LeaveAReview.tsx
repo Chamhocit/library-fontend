@@ -39,7 +39,7 @@ export const LeaveAReview:React.FC<{submitReview:any}>=(props)=>{
                             Description
                         </label>
                         <textarea className="form-control" id="submitReviewDescription" rows={3}
-                            onChange={e=>setReviewDescription(e.target.value)}></textarea>
+                            onChange={e=>setReviewDescription(e.target.value)} value={reviewDescription}></textarea>
                     </div>
                     <div>
                         <button onClick={()=>props.submitReview(startInput, reviewDescription)} type="button" className="btn btn-primary mt-3">Submit Review</button>
