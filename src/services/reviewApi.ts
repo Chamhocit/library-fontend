@@ -4,7 +4,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
 export const reviewApi = createApi({
     reducerPath: "reviewApi",
     baseQuery: fetchBaseQuery({
-        baseUrl: "http://localhost:8080/api/reviews",
+        baseUrl: "https://localhost:8443/api/reviews",
     }),
     endpoints: (builder)=>({
         getReviews: builder.query({

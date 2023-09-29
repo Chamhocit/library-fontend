@@ -56,7 +56,7 @@ export const BookCheckoutPage = () => {
     useEffect(() => {
         
             //số lượng đang checkout
-            const url = "http://localhost:8080/api/books/secure/currentloans/count";
+            const url = "https://localhost:8443/api/books/secure/currentloans/count";
             api.get(url)
                 .then(response => {
                     setCurrentLoansCount(response.data);
@@ -68,7 +68,7 @@ export const BookCheckoutPage = () => {
                 });
 
             //check xem đã checkout
-            const urlTwo = `http://localhost:8080/api/books/secure/ischeckout/byuser?bookId=${bookId}`;
+            const urlTwo = `https://localhost:8443/api/books/secure/ischeckout/byuser?bookId=${bookId}`;
             
             api.get(urlTwo)
                 .then(response => {
@@ -84,7 +84,7 @@ export const BookCheckoutPage = () => {
 
 
     useEffect(() => {
-        axios.get(`http://localhost:8080/api/reviews/search/findByBookId?bookId=${bookId}`)
+        axios.get(`https://localhost:8443/api/reviews/search/findByBookId?bookId=${bookId}`)
             .then(response => {
                 const dataReview = response.data._embedded.reviews;
 
@@ -115,7 +115,7 @@ export const BookCheckoutPage = () => {
     }, [isReviewLeft]);
 
     useEffect(() => {
-        const url = `http://localhost:8080/api/books/${bookId}`;
+        const url = `https://localhost:8443/api/books/${bookId}`;
         axios.get(url)
             .then(response => {
                 const responseData = response.data
@@ -140,7 +140,7 @@ export const BookCheckoutPage = () => {
 
     useEffect(() => {
         
-            const url = `http://localhost:8080/api/reviews/secure/user/book?bookId=${bookId}`;
+            const url = `https://localhost:8443/api/reviews/secure/user/book?bookId=${bookId}`;
             api.get(url)
             .then(response=>{
                 setIsReviewLeft(response.data);
@@ -153,7 +153,7 @@ export const BookCheckoutPage = () => {
     }, [])
 
     async function checkoutBook() {
-        const url = `http://localhost:8080/api/books/secure/checkout?bookId=${bookId}`;
+        const url = `https://localhost:8443/api/books/secure/checkout?bookId=${bookId}`;
         api.put(url)
             .then(response => {
                 setIsCheckedOut(true);
@@ -170,7 +170,7 @@ export const BookCheckoutPage = () => {
             bookId=book?.id;
         }
         const reviewRequestModel = new ReviewRequestModel(starInput, bookId, reviewDescription);
-        const url = `http://localhost:8080/api/reviews/secure`;
+        const url = `https://localhost:8443/api/reviews/secure`;
         api.post(url, reviewRequestModel)
         .then(response=>{
             setIsReviewLeft(true);

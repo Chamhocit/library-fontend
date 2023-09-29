@@ -26,7 +26,7 @@ export const Navbar = () => {
     }, [userName]);
 
     const handleLogout = () => {
-        api.post('http://localhost:8080/api/auth/logout')
+        api.post('https://localhost:8443/api/auth/logout')
             .then(response => {
                 dispath(removeUsername());
                 history.push("/login");
@@ -59,7 +59,13 @@ export const Navbar = () => {
                         {showShelft &&
                             <li className="nav-item">
                                 <NavLink className="nav-link" to="/shelf">Shelf</NavLink>
-                            </li>}
+                            </li>
+                            }
+                        {showShelft &&
+                            <li className="nav-item">
+                                <NavLink className="nav-link" to="/admin">Admin</NavLink>
+                            </li>
+                            }
                     </ul>
                     <ul className="navbar-nav ms-auto">
                         {showName ? (

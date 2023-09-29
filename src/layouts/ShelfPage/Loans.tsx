@@ -16,7 +16,7 @@ export const Loans = () => {
 
 
     useEffect(() => {
-        api.get('http://localhost:8080/api/books/secure/currentloans')
+        api.get('https://localhost:8443/api/books/secure/currentloans')
             .then(response => {
 
                 setShelfCurrentLoans(response.data);
@@ -32,7 +32,7 @@ export const Loans = () => {
     }, [checkout]);
 
     async function returnBook(bookId: number) {
-        const url = `http://localhost:8080/api/books/secure/return?bookId=${bookId}`;
+        const url = `https://localhost:8443/api/books/secure/return?bookId=${bookId}`;
         api.put(url).then(response => {
             setCheckout(true);
             console.log(checkout);
@@ -42,7 +42,7 @@ export const Loans = () => {
     }
 
     async function renewLoan(bookId: number) {
-        const url = `http://localhost:8080/api/books/secure/renew/loan?bookId=${bookId}`;
+        const url = `https://localhost:8443/api/books/secure/renew/loan?bookId=${bookId}`;
         api.put(url).then(response => {
             setCheckout(true);
             console.log(checkout);

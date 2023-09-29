@@ -22,7 +22,7 @@ export const ReviewListPage = ()=>{
     const bookId = (window.location.pathname).split("/")[2];
 
     useEffect(() => {
-        axios.get(`http://localhost:8080/api/reviews/search/findByBookId?bookId=${bookId}&page=${currentPage-1}&size=${reviewPerPage}`)
+        axios.get(`https://localhost:8443/api/reviews/search/findByBookId?bookId=${bookId}&page=${currentPage-1}&size=${reviewPerPage}`)
             .then(response => {
                 const dataReview = response.data._embedded.reviews;
 

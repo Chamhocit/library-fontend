@@ -22,7 +22,7 @@ export const Messages = () => {
     const [totalPage, setTotalPage] = useState(0);
 
     useEffect(() => {
-        const url = `http://localhost:8080/api/messages/search/findMessagesByUserEmail?userEmail=${userEmail}&page=${currentPage - 1}&size=5`;
+        const url = `https://localhost:8443/api/messages/search/findMessagesByUserEmail?userEmail=${userEmail}&page=${currentPage - 1}&size=5`;
         api.get(url)
         .then(response=>{
             setMessages(response.data._embedded.messages);

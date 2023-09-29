@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { AdminMessages } from "./AdminMessages";
 import { AddNewBook } from "./component/AddNewBook";
+import {  ChangeQuantityOfBooks } from "./component/ChangeQuantityOfBook";
 
 export const ManageLibraryPage = () => {
 
@@ -16,7 +17,7 @@ export const ManageLibraryPage = () => {
     const userEmail = Cookies.get("userName");
     useEffect(() => {
         if (userEmail) {
-            api.get("http://localhost:8080/api/auth/getRole")
+            api.get("https://localhost:8443/api/auth/getRole")
                 .then(response => {
                     setIsAdmin(response.data);
                 }).catch(error => {
@@ -76,7 +77,7 @@ export const ManageLibraryPage = () => {
                         </div>
                         <div className="tab-pane fade" id="nav-quantity" role="tabpanel"
                             aria-labelledby="nav-quantity-tab">
-                            {changeQuantityOfBooksClick ? <>Change Quantity</> : <></>}
+                            {changeQuantityOfBooksClick ? <ChangeQuantityOfBooks/> : <></>}
                         </div>
                         <div className="tab-pane fade" id="nav-messages" role="tabpanel"
                             aria-labelledby="nav-messages-tab">

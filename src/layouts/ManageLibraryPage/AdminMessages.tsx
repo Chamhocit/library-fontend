@@ -22,7 +22,7 @@ export const AdminMessages = () => {
     const [btnSubmit, setBtnSubmit] = useState(false);
 
     useEffect(() => {
-        const url = `http://localhost:8080/api/messages/search/findMessagesByClosed?closed=false&page=${currentPage - 1}&size=${messagesPerPage}`;
+        const url = `https://localhost:8443/api/messages/search/findMessagesByClosed?closed=false&page=${currentPage - 1}&size=${messagesPerPage}`;
         api.get(url)
             .then(response => {
                 setMessages(response.data._embedded.messages);
@@ -44,7 +44,7 @@ export const AdminMessages = () => {
     }
 
     async function submitResponseToQuestion (id:number, response:string) {
-        const url = `http://localhost:8080/api/messages/secure/admin/message`;
+        const url = `https://localhost:8443/api/messages/secure/admin/message`;
         if(id!==null && response!==""){
             const messageAdminResponse: AdminMessageRequest = new AdminMessageRequest(id, response);
             api.put(url, messageAdminResponse)

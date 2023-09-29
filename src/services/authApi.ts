@@ -5,7 +5,7 @@ import Role from "../models/Role";
 export const authApi=createApi({
     reducerPath: "authApi",
     baseQuery: fetchBaseQuery({
-        baseUrl:"http://localhost:8080/api/auth",
+        baseUrl:"https://localhost:8443/api/auth",
     }),
     endpoints: (builder)=>({
         loginUser: builder.mutation({

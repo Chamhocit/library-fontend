@@ -14,7 +14,7 @@ export const PostNewMessage = () => {
 
 
     const submitNewQuestion = async () => {
-        const url = 'http://localhost:8080/api/messages/secure/add/message';
+        const url = 'https://localhost:8443/api/messages/secure/add/message';
         const messageRequestModel: MessageModel = new MessageModel(title, question);
         if (title !== "" && question !== "") {
             api.post(url, messageRequestModel)

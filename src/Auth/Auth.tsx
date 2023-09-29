@@ -42,7 +42,7 @@ export const Auth = () => {
     ] = useRegisterUserMutation();
 
     const handleLogin = async () => {
-        await api.post("http://localhost:8080/api/auth/authenticate", {
+        await api.post("/api/auth/authenticate", {
             email: email,
             password: password
         }).then(response => {

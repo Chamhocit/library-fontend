@@ -31,7 +31,7 @@ export const HistoryPage = () => {
 
     useEffect(() => {
         if (userEmail) {
-            const url = `http://localhost:8080/api/histories/search/findHistoriesByUserEmail?userEmail=${userEmail}&page=${currentPage - 1}&size=5`;
+            const url = `https://localhost:8443/api/histories/search/findHistoriesByUserEmail?userEmail=${userEmail}&page=${currentPage - 1}&size=5`;
             axios.get(url)
                 .then(response => {
                     setHistories(response.data._embedded.histories);
